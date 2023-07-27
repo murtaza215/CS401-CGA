@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,6 @@ import soot.Transform;
 import soot.jimple.toolkits.callgraph.CHATransformer;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
-import soot.jimple.toolkits.callgraph.Targets;
 import soot.util.dot.DotGraph;
 import soot.util.queue.QueueReader;
 
@@ -45,10 +45,13 @@ public class Main {
         return filteredEdges;
     }
 
-    // Optimized method to serialize the call graph
+    // Optimized method to serialize the call graph and count method calls
     public static void serializeCallGraph(CallGraph graph, String filename) {
         DotGraph canvas = new DotGraph("call-graph");
         List<Edge> filteredEdges = filterEdges(graph);
+
+        // Keep track of method calls count
+        Map<String, Integer> methodCallCounts = new HashMap<>();
 
         for (Edge edge : filteredEdges) {
             MethodOrMethodContext src = edge.getSrc();
@@ -59,6 +62,14 @@ public class Main {
             canvas.drawNode(srcString);
             canvas.drawNode(tgtString);
             canvas.drawEdge(srcString, tgtString);
+
+            // Count the method calls
+            String callInfo = srcString + " -> " + tgtString;
+            Integer count = methodCallCounts.get(callInfo);
+            if (count == null) {
+                count = 0;
+            }
+            methodCallCounts.put(callInfo, count + 1);
         }
 
         if (filename == null) {
@@ -67,7 +78,16 @@ public class Main {
 
         canvas.plot(filename);
         System.out.println("Call graph written to " + filename);
+
+        // Print method call counts
+        System.out.println("Method Call Counts:");
+        for (String callInfo : methodCallCounts.keySet()) {
+            int count = methodCallCounts.get(callInfo);
+            System.out.println(callInfo + ": " + count + " times");
+        }
     }
+
+ // ... (previous code)
 
     public static void main(String[] args) {
         List<String> argsList = new ArrayList<>(Arrays.asList(args));
@@ -91,14 +111,20 @@ public class Main {
                     targets.add(edges.next());
                 }
 
+                int totalMethodCalls = 0;
                 for (Edge edge : targets) {
                     SootMethod tgt = (SootMethod) edge.getTgt();
                     System.out.println(src + " may call " + tgt);
+                    totalMethodCalls++;
                 }
+
+                // Print the total number of method calls
+                System.out.println("Total Method Calls: " + totalMethodCalls);
             }
         }));
 
         args = argsList.toArray(new String[0]);
         soot.Main.main(args2);
     }
+
 }
