@@ -16,6 +16,14 @@ class CallGraphs {
         c.methodA();
         D d = new D();
         d.methodB();
+
+        // Additional method calls
+        E e = new E();
+        e.methodX();
+
+        // More method calls
+        F f = new F();
+        f.methodZ();
     }
 }
 
@@ -58,5 +66,27 @@ class C {
 class D {
     public void methodB() {
         System.out.println("D.methodB() called.");
+    }
+}
+
+class E {
+    public void methodX() {
+        System.out.println("E.methodX() called.");
+        F f = new F();
+        f.methodZ();
+    }
+}
+
+class F {
+    public void methodZ() {
+        System.out.println("F.methodZ() called.");
+        G g = new G();
+        g.methodW();
+    }
+}
+
+class G {
+    public void methodW() {
+        System.out.println("G.methodW() called.");
     }
 }
