@@ -119,7 +119,9 @@ public class Main {
                 }
 
                 // Print the total number of method calls
+                System.out.println("---------------------------------------");
                 System.out.println("Total Method Calls: " + totalMethodCalls);
+                System.out.println("---------------------------------------");
             }
         }));
 
